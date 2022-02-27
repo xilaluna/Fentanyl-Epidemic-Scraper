@@ -1,6 +1,6 @@
 # Fentanyl Epidemic Scraper
 
-The mission for this project was to create a scraper that will pull articles in relation to fentanyl for the goal of mapping the exponential growth of the fentanyl epidemic.
+The mission for this project was to create a scraper that will pull articles in relation to fentanyl for the goal of mapping the exponential growth of the fentanyl epidemic & the increase of fentanyl distrubtion through illegal sites.
 
 ## How it Works
 
