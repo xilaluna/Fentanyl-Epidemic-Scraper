@@ -1,8 +1,10 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"os"
 	"strconv"
 	"strings"
 
@@ -15,7 +17,7 @@ type Article struct {
 }
 
 func main() {
-	// articles := []Article{}
+	articles := []Article{}
 
 	// Instantiate default collector
 	collector := colly.NewCollector(
@@ -34,7 +36,14 @@ func main() {
 		e.ForEachWithBreak(".a2u > p", func(i int, p *colly.HTMLElement) bool {
 			paragraph := p.Text
 			if strings.Contains(strings.ToLower(paragraph), "fentanyl") {
-				fmt.Print("found")
+				title := e.ChildText(".a1i")
+				date := e.ChildText(".a2t")
+
+				newArticle := Article{}
+				newArticle.Title = title
+				newArticle.Date = date
+
+				articles = append(articles, newArticle)
 				return false
 			}
 			return true
@@ -56,11 +65,11 @@ func main() {
 		collector.Visit("https://darknetlive.com/post/page/" + strconv.Itoa(i) + "/")
 	}
 
-	// json, _ := json.MarshalIndent(articles, "", "  ")
+	json, _ := json.MarshalIndent(articles, "", "  ")
 
-	// writeError := os.WriteFile("data.json", json, 0644)
-	// if writeError != nil {
-	// 	panic(writeError)
-	// }
+	writeError := os.WriteFile("data.json", json, 0644)
+	if writeError != nil {
+		panic(writeError)
+	}
 
 }
