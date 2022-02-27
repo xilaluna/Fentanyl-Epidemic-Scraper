@@ -1,47 +1,64 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
+	"os"
+	"strconv"
+	"strings"
 
 	"github.com/gocolly/colly"
 )
 
 type Article struct {
-	Title string
-	Date string
+	Title string `json:"title"`
+	Date string `json:"date"`
 }
 
-func scrape(url string) {
+func main() {
 	// Instantiate default collector
-	c := colly.NewCollector(
+	collector := colly.NewCollector(
 		colly.AllowedDomains("darknetlive.com"),
 	)
 
+	articles := []Article{}
+
+	// On every a article grab the title and date
+	collector.OnHTML(".a1e", func(e *colly.HTMLElement) {
+		title := e.ChildText(".a1f")
+		date := e.ChildText(".a1g > time")
+		if strings.Contains(strings.ToLower(title), "fent") {
+			newArticle := Article{}
+
+			newArticle.Title = title
+			newArticle.Date = date
+
+			articles = append(articles, newArticle)
+		}
+		
+	}) 
+
 	// Before making a request print "Visiting ..."
-	c.OnRequest(func(r *colly.Request) {
+	collector.OnRequest(func(r *colly.Request) {
 		fmt.Println("Visiting", r.URL.String())
 	})
 
-	c.OnError(func(_ *colly.Response, err error) {
+	collector.OnError(func(_ *colly.Response, err error) {
     	log.Println("Something went wrong:", err)
 	})
 
-	c.OnScraped(func(r *colly.Response) {
-    	fmt.Println("Finished", r.Request.URL)
-	})
+	// Start scraping url and its numbered pages
+	collector.Visit("https://darknetlive.com/post/")
+	for i := 2; i < 20; i++ {
+		collector.Visit("https://darknetlive.com/post/page/" + strconv.Itoa(i) + "/")
+	}
 
-	// On every a article grab the title and date
-	c.OnHTML(".a1e", func(e *colly.HTMLElement) {
-		fmt.Printf("Title: %v \n", e.ChildText(".a1f"))
-		fmt.Printf("Date: %v \n", e.ChildText(".a1g > time"))
-	}) 
+	json, _ := json.MarshalIndent(articles, "", "  ")
 
-	// Start scraping url
-	c.Visit(url)
-}
+	writeError := os.WriteFile("data.json", json, 0644)
+	if writeError != nil {
+		panic(writeError)
+	}
 
-
-func main() {
-	scrape("https://darknetlive.com/post/")
 }
