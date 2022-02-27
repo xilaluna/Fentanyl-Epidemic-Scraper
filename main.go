@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+	"strings"
 
 	"github.com/gocolly/colly"
 )
@@ -26,14 +27,18 @@ func main() {
 	// On every a article grab the title and date
 	collector.OnHTML("article.a1e > a", func(e *colly.HTMLElement) {
 		link := e.Attr("href")
-		link_title := e.Attr("title")
-		fmt.Println(link_title)
 		articleCollector.Visit(e.Request.AbsoluteURL(link))
 	}) 
 
 	articleCollector.OnHTML(".h-entry", func(e *colly.HTMLElement) {
-		title := e.ChildText(".a1i")
-		fmt.Printf("%v", title)
+		e.ForEachWithBreak(".a2u > p", func(i int, p *colly.HTMLElement) bool {
+			paragraph := p.Text
+			if strings.Contains(strings.ToLower(paragraph), "fentanyl") {
+				fmt.Print("found")
+				return false
+			}
+			return true
+		})
 	})
 
 	// Before making a request print "Visiting ..."
