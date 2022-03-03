@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/gocolly/colly"
+	"github.com/gocolly/colly/extensions"
 )
 
 type Article struct {
@@ -19,18 +20,28 @@ type Article struct {
 func main() {
 	articles := []Article{}
 
+	numberOfPages := 0
+
 	// Instantiate default collector
 	collector := colly.NewCollector(
 		colly.AllowedDomains("darknetlive.com"),
+		colly.CacheDir("./.cache"),
 	)
+
+	extensions.RandomUserAgent(collector)
 
 	articleCollector := collector.Clone()
 
 	// On every a article grab the title and date
-	collector.OnHTML("article.a1e > a", func(e *colly.HTMLElement) {
-		link := e.Attr("href")
-		articleCollector.Visit(e.Request.AbsoluteURL(link))
-	}) 
+	// collector.OnHTML("article.a1e > a", func(e *colly.HTMLElement) {
+	// 	link := e.Attr("href")
+	// 	articleCollector.Visit(e.Request.AbsoluteURL(link))
+	// }) 
+
+	collector.OnHTML("li.a2j:last-child > a", func(e *colly.HTMLElement){
+		numberOfPages += 1
+		fmt.Println(e.Attr("href"))
+	})
 
 	articleCollector.OnHTML(".h-entry", func(e *colly.HTMLElement) {
 		e.ForEachWithBreak(".a2u > p", func(i int, p *colly.HTMLElement) bool {
