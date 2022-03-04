@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -33,22 +34,26 @@ func main() {
 	articleCollector := collector.Clone()
 
 	// On every a article grab the title and date
-	// collector.OnHTML("article.a1e > a", func(e *colly.HTMLElement) {
-	// 	link := e.Attr("href")
-	// 	articleCollector.Visit(e.Request.AbsoluteURL(link))
-	// }) 
+	collector.OnHTML("article.a1e > a", func(e *colly.HTMLElement) {
+		link := e.Attr("href")
+		articleCollector.Visit(e.Request.AbsoluteURL(link))
+	}) 
 
 	collector.OnHTML("li.a2j:last-child > a", func(e *colly.HTMLElement){
-		numberOfPages += 1
-		fmt.Println(e.Attr("href"))
+		if numberOfPages == 0 {
+			re := regexp.MustCompile("[0-9]+")
+			stringNumber, _ := strconv.Atoi(re.FindAllString(e.Attr("href"), -1)[0])
+			numberOfPages = stringNumber
+			fmt.Println(stringNumber)
+		} 
 	})
 
 	articleCollector.OnHTML(".h-entry", func(e *colly.HTMLElement) {
-		e.ForEachWithBreak(".a2u > p", func(i int, p *colly.HTMLElement) bool {
+		e.ForEachWithBreak(".a2s > p", func(i int, p *colly.HTMLElement) bool {
 			paragraph := p.Text
 			if strings.Contains(strings.ToLower(paragraph), "fentanyl") {
 				title := e.ChildText(".a1i")
-				date := e.ChildText(".a2t")
+				date := e.ChildText(".a2x")
 
 				newArticle := Article{}
 				newArticle.Title = title
@@ -72,7 +77,8 @@ func main() {
 
 	// Start scraping url and its numbered pages
 	collector.Visit("https://darknetlive.com/post/")
-	for i := 2; i < 3; i++ {
+
+	for i := 2; i < numberOfPages; i++ {
 		collector.Visit("https://darknetlive.com/post/page/" + strconv.Itoa(i) + "/")
 	}
 
