@@ -1,5 +1,7 @@
 # Fentanyl Epidemic Scraper
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/xilaluna/Fentanyl-Epidemic-Scraper)](https://goreportcard.com/report/github.com/xilaluna/Fentanyl-Epidemic-Scraper)
+
 The mission for this project was to create a scraper that will pull articles in relation to fentanyl for the goal of mapping the exponential growth of the fentanyl epidemic & the increase of fentanyl distrubtion through illegal sites.
 
 ## How it Works
