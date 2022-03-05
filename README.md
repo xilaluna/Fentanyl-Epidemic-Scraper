@@ -4,7 +4,7 @@
 
 The mission for this project was to create a scraper that would pull articles pertaining to fentanyl, for the goal of mapping the trend of the fentanyl epidemic & the increase of fentanyl distrubtion through illegal sites.
 
-[graph image](/assets/graph.png)
+![graph image](/assets/graph.png)
 
 ## How it Works
 
